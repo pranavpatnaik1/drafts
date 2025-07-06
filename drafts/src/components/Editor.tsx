@@ -7,25 +7,16 @@ import Underline from '@tiptap/extension-underline';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Toolbar from './Toolbar';
 import '../styles/animations.css';
 import { Editor as TiptapEditor } from '@tiptap/react';
 
-interface Document {
-  id: string;
-  title: string;
-  content: string;
-  updatedAt: string;
-}
-
 export default function Editor({ id: documentId }: { id?: string }) {
   const [editorInstance, setEditorInstance] = useState<TiptapEditor | null>(null);
   const [title, setTitle] = useState('Untitled Document');
-  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [initialContent, setInitialContent] = useState('');
-  const params = useParams();
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
 
   const editor = useEditor({
@@ -44,7 +35,7 @@ export default function Editor({ id: documentId }: { id?: string }) {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-2 prose-stone min-h-[500px] editor font-[Manrope]',
       },
     },
-    content: initialContent,
+    content: '',
     onUpdate: ({ editor }) => {
       handleAutoSave(editor.getHTML());
     },
@@ -56,17 +47,10 @@ export default function Editor({ id: documentId }: { id?: string }) {
     }
   }, [editor]);
 
-  // Set initial content when editor is ready
-  useEffect(() => {
-    if (editor && initialContent) {
-      editor.commands.setContent(initialContent);
-    }
-  }, [editor, initialContent]);
-
   const loadDocument = useCallback(async () => {
     try {
       const documents = JSON.parse(localStorage.getItem('documents') || '[]');
-      const document = documents.find((doc: { id: string }) => doc.id === documentId);
+      const document = documents.find((doc: { id: string; title: string; content: string }) => doc.id === documentId);
       if (document) {
         setTitle(document.title);
         editorInstance?.commands.setContent(document.content);
