@@ -6,27 +6,18 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Toolbar from './Toolbar';
 import '../styles/animations.css';
-import dynamic from 'next/dynamic';
+import { Editor as TiptapEditor } from '@tiptap/react';
 
-interface Document {
-  id: string;
-  title: string;
-  content: string;
-  updatedAt: string;
-}
-
-const Editor = () => {
+export default function Editor({ id: documentId }: { id?: string }) {
+  const [editorInstance, setEditorInstance] = useState<TiptapEditor | null>(null);
   const [title, setTitle] = useState('Untitled Document');
-  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [initialContent, setInitialContent] = useState('');
-  const params = useParams();
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
-  const documentId = params?.id as string;
 
   const editor = useEditor({
     extensions: [
@@ -44,75 +35,67 @@ const Editor = () => {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-2 prose-stone min-h-[500px] editor font-[Manrope]',
       },
     },
-    content: initialContent,
+    content: '',
     onUpdate: ({ editor }) => {
       handleAutoSave(editor.getHTML());
     },
   });
 
-  // Set initial content when editor is ready
   useEffect(() => {
-    if (editor && initialContent) {
-      editor.commands.setContent(initialContent);
+    if (editor) {
+      setEditorInstance(editor);
     }
-  }, [editor, initialContent]);
+  }, [editor]);
 
-  useEffect(() => {
-    const initializeDocument = async () => {
-      if (documentId) {
-        await loadDocument();
-      } else {
-        await createDocument();
-      }
-      setLoading(false);
-    };
-
-    initializeDocument();
-  }, [documentId]);
-
-  const loadDocument = async () => {
+  const loadDocument = useCallback(async () => {
     try {
-      const documents = JSON.parse(localStorage.getItem('documents') || '[]') as Document[];
-      const document = documents.find(doc => doc.id === documentId);
-      
-      if (!document) {
-        router.push('/');
-        return;
+      const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      const document = documents.find((doc: { id: string; title: string; content: string }) => doc.id === documentId);
+      if (document) {
+        setTitle(document.title);
+        editorInstance?.commands.setContent(document.content);
       }
-
-      setTitle(document.title);
-      setInitialContent(document.content || '');
     } catch (error) {
       console.error('Failed to load document:', error);
       router.push('/');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [documentId, editorInstance, router]);
 
-  const createDocument = async () => {
+  const createDocument = useCallback(async () => {
     try {
-      const documents = JSON.parse(localStorage.getItem('documents') || '[]') as Document[];
-      const newDocument: Document = {
-        id: crypto.randomUUID(),
+      const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      const newDocument = {
+        id: documentId,
         title: 'Untitled Document',
         content: '',
         updatedAt: new Date().toISOString(),
       };
-      
       documents.push(newDocument);
       localStorage.setItem('documents', JSON.stringify(documents));
-      router.push(`/editor/${newDocument.id}`);
     } catch (error) {
       console.error('Failed to create document:', error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [documentId]);
+
+  useEffect(() => {
+    if (documentId) {
+      loadDocument();
+    } else {
+      createDocument();
+    }
+  }, [documentId, loadDocument, createDocument]);
 
   const handleAutoSave = async (content: string) => {
     if (!documentId || saving) return;
     
     setSaving(true);
     try {
-      const documents = JSON.parse(localStorage.getItem('documents') || '[]') as Document[];
-      const index = documents.findIndex(doc => doc.id === documentId);
+      const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+      const index = documents.findIndex((doc: { id: string }) => doc.id === documentId);
       
       if (index === -1) {
         throw new Error('Document not found');
@@ -137,8 +120,8 @@ const Editor = () => {
     setTitle(newTitle);
     if (documentId) {
       try {
-        const documents = JSON.parse(localStorage.getItem('documents') || '[]') as Document[];
-        const index = documents.findIndex(doc => doc.id === documentId);
+        const documents = JSON.parse(localStorage.getItem('documents') || '[]');
+        const index = documents.findIndex((doc: { id: string }) => doc.id === documentId);
         
         if (index === -1) {
           throw new Error('Document not found');
@@ -171,7 +154,7 @@ const Editor = () => {
         jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
       };
       
-      await html2pdf().set(opt).from(element).save();
+      await html2pdf().set(opt).from(element as HTMLElement).save();
     } catch (error) {
       console.error('Failed to export PDF:', error);
     }
@@ -227,6 +210,4 @@ const Editor = () => {
       </div>
     </div>
   );
-};
-
-export default Editor; 
+} 
