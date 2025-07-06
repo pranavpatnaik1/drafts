@@ -91,8 +91,14 @@ export default function Home() {
               <p className="text-sm text-gray-500 mb-2">
                 {new Date(doc.updatedAt).toLocaleDateString()}
               </p>
-              <p className="text-sm text-gray-600 line-clamp-3">
-                {doc.content ? doc.content.replace(/<[^>]*>/g, '') : 'No content'}
+              <p className="text-sm text-gray-600 truncate">
+                {doc.content 
+                  ? doc.content
+                      .replace(/<[^>]*>/g, '')
+                      .split('\n')[0]
+                      .trim() || 'No content'
+                  : 'No content'
+                }
               </p>
             </Link>
           ))}

@@ -15,6 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "drafts",
   description: "the app for drafts",
+  icons: {
+    icon: "/drafts-logo.png",
+    apple: "/drafts-logo.png",
+  },
 };
 
 export default function RootLayout({
