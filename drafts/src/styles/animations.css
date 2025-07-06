@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=DM+Serif+Text:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jersey+25&family=Manrope&family=Markazi+Text:wght@400..700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+.editorContainer {
+  border: 1px solid #000000;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  padding: 0.5rem;
+  padding-top: 0rem;
+  padding-bottom: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  transform-origin: center;
+  margin: 0 auto;
+  font-family: 'Manrope', sans-serif;
+}
+
+.exportSection {
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+}
+
+.editorContainer:focus-within {
+  transform: scale(1.005);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.editor {
+  transition: all 0.3s ease;
+  font-family: 'Manrope', sans-serif;
+  min-height: 500px;
+  width: 100%;
+  padding: 1rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+.editor p {
+  margin-bottom: 1rem;
+}
+
+.editor:focus-within {
+  outline: none;
+}
+
+.editor [data-placeholder]::before {
+  color: #9ca3af;
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Export button animations */
+.exportButton {
+  transition: all 0.2s ease-in-out;
+}
+
+.exportButton:hover {
+  transform: scale(1.005);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background-color: rgb(31 41 55); /* Equivalent to Tailwind's gray-800 */
+} 
