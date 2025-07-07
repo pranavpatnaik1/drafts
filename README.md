@@ -4,6 +4,7 @@
   <img src="drafts/public/drafts.png" width="100%" alt="drafts - a minimalist text editor" />
 </div>
 
+
 A minimalist text editor built with Next.js and TipTap. Features include:
 - Clean, distraction-free writing environment
 - Real-time autosave
